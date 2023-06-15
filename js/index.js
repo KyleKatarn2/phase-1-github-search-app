@@ -6,8 +6,8 @@ const init = () => {
 
     form.addEventListener("submit", (event) => {
         event.preventDefault();
-        list.textContent = "";
-        repo.textContent = "";
+        list.innerHTML = "";
+        repo.innerHTML = "";
 
         fetch(`https://api.github.com/search/users?q=${event.target.search.value}`)
             .then((response) => response.json())
@@ -15,27 +15,27 @@ const init = () => {
     })
     
     function renderUser(userData) {
-        const userName = document.createElement('li');
-        userName.textContent = userData.login;
+        let card = document.createElement('li');
+        card.className = 'card'
+        card.innerHTML = `<h2>${userData.login}</h2>
+            <img
+                src="${userData.avatar_url}"
+                alt="${userData.login} avatar"
+            />
+            <div class="content">
+                <a>${userData.html_url} Profile</a>
+            </div>
+        `
+        card.querySelector("a").addEventListener('click', (e) => handleClick(userData));
 
-        const avatar = document.createElement('img');
-        avatar.src = userData.avatar_url;
-        avatar.alt = `${userData.login} avatar`;
-
-        avatar.addEventListener('click', (e) => handleClick(userData));
-
-        const profileLink = document.createElement('a');
-        profileLink.href = userData.html_url;
-        profileLink.textContent = "Profile";
-
-        list.append(userName, avatar, profileLink);
+       list.appendChild(card);
     }
 
     function handleClick(userData) {
         fetch(`https://api.github.com/users/${userData.login}/repos`)
         .then((response) => response.json())
         .then(userRepos => {
-            list.textContent = "";
+            list.innerHTML = "";
             renderUser(userData);
             userRepos.forEach(renderRepos)
         })
@@ -43,7 +43,7 @@ const init = () => {
 
     function renderRepos(user) {
         const li = document.createElement('li');
-        li.textContent = user.full_name;
+        li.innerHTML = user.full_name;
         repo.append(li);
     }
 
